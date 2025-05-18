@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <string>
+#include <sstream>
 
 #include "structures/vroom/solution/solution.cpp"
 
@@ -22,6 +23,21 @@ struct _Step{
 
   char description[40];
 };
+
+static std::string solution_to_json(const vroom::Solution& solution) {
+  std::ostringstream oss;
+  oss << "{";
+  oss << "\"code\":" << solution.code;
+  if (!solution.error.empty()) {
+    oss << ",\"error\":\"" << solution.error << "\"";
+  }
+  oss << ",\"summary\":{"
+      << "\"cost\":" << solution.summary.cost << ","
+      << "\"routes\":" << solution.summary.routes << ","
+      << "\"unassigned\":" << solution.summary.unassigned << "}";
+  oss << "}";
+  return oss.str();
+}
 
 
 void init_solution(py::module_ &m){
@@ -80,6 +96,7 @@ void init_solution(py::module_ &m){
       }
       return arr;
     })
+    .def("_to_json", &solution_to_json)
     .def_readwrite("code", &vroom::Solution::code)
     .def_readwrite("error", &vroom::Solution::error)
     .def_readonly("summary", &vroom::Solution::summary)

@@ -37,3 +37,12 @@ class Solution(_vroom.Solution):
             else:
                 frame.loc[frame[column] == NA_SUBSTITUTE, column] = pandas.NA
         return frame
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return the solution as a Python dictionary."""
+        return json.loads(self._to_json())
+
+    def to_file(self, path: str) -> None:
+        """Write the solution JSON representation to *path*."""
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(self._to_json())
